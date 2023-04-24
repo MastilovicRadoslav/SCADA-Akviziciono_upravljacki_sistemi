@@ -8,3 +8,15 @@ IN_REG  4 2000  0  0   4095  2000  AI  @AnaIn #
 HR_INT  2 3000  0  0   4095  1200  AO  @AnaOut #
 
 
+
+
+STA 1
+TCP 52525
+
+
+DO_REG  10 0     0  0      1    0  DO  @DigOut   5
+DI_REG  8 1000  0  0      1     0  DI  @DigIn    3
+IN_REG  4 2000  0  6   4095  2000  AI  @AnaIn    4
+HR_INT  2 3000  0  0   4095  1200  AO  @AnaOut   6
+HR_LONG 2 3500  0  0  72000     0  CNT @Counter  1623
+

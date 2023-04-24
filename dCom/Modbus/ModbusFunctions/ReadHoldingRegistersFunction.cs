@@ -25,6 +25,8 @@ namespace Modbus.ModbusFunctions
         public override byte[] PackRequest()
         {
 			//TO DO: IMPLEMENT
+			//ModbusReadCommandParameters mdmReadCommParams = this.CommandParameters as ModbusReadCommandParameters;    <-- ovo mogu koristit pa dolje ne kastovat u naslijedjenu klasu
+
 			byte[] paket = new byte[12];//sabrali bajtove, imamo niz od 12 elemenata 
 			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.TransactionId)), 0, paket, 0, 2);//od koje kreces pozicije u izvornom nizu, gdje prekopiravas, na koju poziciju i velicina toga sto prekopiras
 			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.ProtocolId)), 0, paket, 2, 2);
@@ -32,47 +34,38 @@ namespace Modbus.ModbusFunctions
 			paket[6] = CommandParameters.UnitId;//samo zalijepimo UnitId na svoju poziciju
 			paket[7] = CommandParameters.FunctionCode;//samo zalijepimo FunctionCode na svoju poziciju
 			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)((ModbusReadCommandParameters)CommandParameters).StartAddress)), 0, paket, 8, 2);//jos jedno kastovanje jer su ova polja u naslijedjenoj klasi dodata
-			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.TransactionId)), 0, paket, 9, 2);
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)((ModbusReadCommandParameters)CommandParameters).Quantity)), 0, paket, 10, 2);
 
-            return paket;
+			return paket;
 		}
 
 		/// <inheritdoc />
 		public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)
         {
 			//TO DO: IMPLEMENT
-			var ret = new Dictionary<Tuple<PointType, ushort>, ushort>();
 
-			if (response[7] == CommandParameters.FunctionCode + 0x80)
+
+			ModbusReadCommandParameters mdmReadCommParams = this.CommandParameters as ModbusReadCommandParameters;
+			Dictionary<Tuple<PointType, ushort>, ushort> dic = new Dictionary<Tuple<PointType, ushort>, ushort>();
+
+			ushort quantity = response[8];
+
+			ushort value;
+
+			int p1 = 7, p2 = 8;
+			for (int i = 0; i < quantity / 2; i++)
 			{
-				HandeException(response[8]);
-			}
-			else
-			{
-				int cnt = 0;
-				ushort adresa = ((ModbusReadCommandParameters)CommandParameters).StartAddress;
-				ushort value;
-				byte mask = 1;
-				for (int i = 0; i < response[8]; i++)
-				{
-					byte tempByte = response[9 + i];
-					for (int j = 0; j < 8; j++)
-					{
-						value = (ushort)(tempByte & mask);
-						tempByte >>= 1;
-						ret.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_INPUT, adresa), value);
-						cnt++;
-						adresa++;
-						if (cnt == ((ModbusReadCommandParameters)CommandParameters).Quantity)
-						{
-							break;
-						}
+				byte port1 = response[p1 += 2];
+				byte port2 = response[p2 += 2];
 
-					}
-				}
-			}
+				value = (ushort)(port2 + (port1 << 8));
+				dic.Add(new Tuple<PointType, ushort>(PointType.ANALOG_OUTPUT, (ushort)(mdmReadCommParams.StartAddress + i)), value);
 
-			return ret;
+
+			}
+			return dic;
+
+
 		}
     }
 }

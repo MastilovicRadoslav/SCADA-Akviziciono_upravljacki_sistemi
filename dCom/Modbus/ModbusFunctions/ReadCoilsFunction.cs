@@ -27,14 +27,16 @@ namespace Modbus.ModbusFunctions
 			//TO DO: IMPLEMENT
 			//napraviti niz od 12 bajta
 			//CommandParameters.
-			byte[] paket = new byte[12];
-			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.TransactionId)), 0, paket, 0, 2);
+			//ModbusReadCommandParameters mdmReadCommParams = this.CommandParameters as ModbusReadCommandParameters;    <-- ovo mogu koristit pa dolje ne kastovat u naslijedjenu klasu
+
+			byte[] paket = new byte[12];//sabrali bajtove, imamo niz od 12 elemenata 
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.TransactionId)), 0, paket, 0, 2);//od koje kreces pozicije u izvornom nizu, gdje prekopiravas, na koju poziciju i velicina toga sto prekopiras
 			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.ProtocolId)), 0, paket, 2, 2);
 			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.Length)), 0, paket, 4, 2);
-			paket[6] = CommandParameters.UnitId;
-			paket[7] = CommandParameters.FunctionCode;
-			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)(ModbusReadCommandParameters)CommandParameters).Star), 0, paket, 6, 2);
-			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.TransactionId)), 0, paket, 8, 2);
+			paket[6] = CommandParameters.UnitId;//samo zalijepimo UnitId na svoju poziciju
+			paket[7] = CommandParameters.FunctionCode;//samo zalijepimo FunctionCode na svoju poziciju
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)((ModbusReadCommandParameters)CommandParameters).StartAddress)), 0, paket, 8, 2);//jos jedno kastovanje jer su ova polja u naslijedjenoj klasi dodata
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)((ModbusReadCommandParameters)CommandParameters).Quantity)), 0, paket, 10, 2);
 
 			return paket;
 			//return niz;
@@ -76,6 +78,42 @@ namespace Modbus.ModbusFunctions
 			}
 
 			return ret;
+
+
+			/*
+			ModbusReadCommandParameters mdmReadCommParams = this.CommandParameters as ModbusReadCommandParameters;
+			Dictionary<Tuple<PointType, ushort>, ushort> dic = new Dictionary<Tuple<PointType, ushort>, ushort>();
+
+			ushort quantity = response[8];
+
+			ushort value;
+			Console.WriteLine(quantity);
+			for (int i = 0; i < quantity; i++)
+			{
+				for (int j = 0; j < 8; j++)
+				{
+					value = (ushort)(response[9 + i] & (byte)0x1);
+					response[9 + i] /= 2;
+
+					if (mdmReadCommParams.Quantity < (j + i * 8)) { break; }
+
+
+					dic.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_OUTPUT, (ushort)(mdmReadCommParams.StartAddress + (j + i * 8))), value);
+				}
+
+			}
+			return dic;
+
+			*/
+
+
+
+
+
+
+
+
+
 			//napraviti rijecnik
 			//iterirati kroz data deo i kroz bite 
 			//return rijecnik;
