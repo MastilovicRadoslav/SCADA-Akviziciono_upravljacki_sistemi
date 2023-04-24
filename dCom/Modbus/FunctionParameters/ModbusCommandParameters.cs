@@ -3,8 +3,8 @@
     /// <summary>
     /// Class containing parameters for modbus commands.
     /// </summary>
-	public abstract class ModbusCommandParameters //bazna klasa
-	{
+	public abstract class ModbusCommandParameters //bazna klasa, ima polja koja su fiksna za sve tipove zahtjeva
+	{	//zaglavlje
 		private ushort transactionId;
 		private ushort protocolId;
 		private ushort length;

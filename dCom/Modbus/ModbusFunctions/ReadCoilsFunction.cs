@@ -24,22 +24,62 @@ namespace Modbus.ModbusFunctions
         /// <inheritdoc/>
         public override byte[] PackRequest()
         {
-            //TO DO: IMPLEMENT
-            //napraviti niz od 12 bajta
-            //CommandParameters.
-            throw new NotImplementedException();
-            //return niz;
-        }
+			//TO DO: IMPLEMENT
+			//napraviti niz od 12 bajta
+			//CommandParameters.
+			byte[] paket = new byte[12];
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.TransactionId)), 0, paket, 0, 2);
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.ProtocolId)), 0, paket, 2, 2);
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.Length)), 0, paket, 4, 2);
+			paket[6] = CommandParameters.UnitId;
+			paket[7] = CommandParameters.FunctionCode;
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)(ModbusReadCommandParameters)CommandParameters).Star), 0, paket, 6, 2);
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.TransactionId)), 0, paket, 8, 2);
+
+			return paket;
+			//return niz;
+		}
 
         /// <inheritdoc />
         public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)
         {
-            //TO DO: IMPLEMENT
-            throw new NotImplementedException();
-            //napraviti rijecnik
-            //iterirati kroz data deo i kroz bite 
-            //return rijecnik;
+			//TO DO: IMPLEMENT
+			var ret = new Dictionary<Tuple<PointType, ushort>, ushort>();
 
-        }
+			if (response[7] == CommandParameters.FunctionCode + 0x80)
+			{
+				HandeException(response[8]);
+			}
+			else
+			{
+				int cnt = 0;
+				ushort adresa = ((ModbusReadCommandParameters)CommandParameters).StartAddress;
+				ushort value;
+				byte mask = 1;
+				for (int i = 0; i < response[8]; i++)
+				{
+					byte tempByte = response[9 + i];
+					for (int j = 0; j < 8; j++)
+					{
+						value = (ushort)(tempByte & mask);
+						tempByte >>= 1;
+						ret.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_INPUT, adresa), value);
+						cnt++;
+						adresa++;
+						if (cnt == ((ModbusReadCommandParameters)CommandParameters).Quantity)
+						{
+							break;
+						}
+
+					}
+				}
+			}
+
+			return ret;
+			//napraviti rijecnik
+			//iterirati kroz data deo i kroz bite 
+			//return rijecnik;
+
+		}
     }
 }
