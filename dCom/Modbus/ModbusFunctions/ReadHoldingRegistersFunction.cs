@@ -48,24 +48,27 @@ namespace Modbus.ModbusFunctions
 			ModbusReadCommandParameters mdmReadCommParams = this.CommandParameters as ModbusReadCommandParameters;
 			Dictionary<Tuple<PointType, ushort>, ushort> dic = new Dictionary<Tuple<PointType, ushort>, ushort>();
 
-			ushort quantity = response[8];
-
-			ushort value;
-
-			int p1 = 7, p2 = 8;
-			for (int i = 0; i < quantity / 2; i++)
+			if (response[7] == CommandParameters.FunctionCode + 0x80)
 			{
-				byte port1 = response[p1 += 2];
-				byte port2 = response[p2 += 2];
+				HandeException(response[8]);
+			}
+			else
+			{
+				ushort quantity = response[8];
 
-				value = (ushort)(port2 + (port1 << 8));
-				dic.Add(new Tuple<PointType, ushort>(PointType.ANALOG_OUTPUT, (ushort)(mdmReadCommParams.StartAddress + i)), value);
+				ushort value;
 
+				int p1 = 7, p2 = 8;
+				for (int i = 0; i < quantity / 2; i++)
+				{
+					byte port1 = response[p1 += 2];
+					byte port2 = response[p2 += 2];
 
+					value = (ushort)(port2 + (port1 << 8));
+					dic.Add(new Tuple<PointType, ushort>(PointType.ANALOG_OUTPUT, (ushort)(mdmReadCommParams.StartAddress + i)), value);
+				}
 			}
 			return dic;
-
-
 		}
     }
 }

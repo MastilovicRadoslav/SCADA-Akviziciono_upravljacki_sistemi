@@ -65,7 +65,7 @@ namespace Modbus.ModbusFunctions
 					{
 						value = (ushort)(tempByte & mask);
 						tempByte >>= 1;
-						ret.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_INPUT, adresa), value);
+						ret.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_OUTPUT, adresa), value);
 						cnt++;
 						adresa++;
 						if (cnt == ((ModbusReadCommandParameters)CommandParameters).Quantity)
