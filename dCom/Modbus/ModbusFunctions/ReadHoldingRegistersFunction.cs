@@ -10,13 +10,13 @@ namespace Modbus.ModbusFunctions
     /// <summary>
     /// Class containing logic for parsing and packing modbus read holding registers functions/requests.
     /// </summary>
-    public class ReadHoldingRegistersFunction : ModbusFunction
+    public class ReadHoldingRegistersFunction : ModbusFunction //Citanje analognog izlaza
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ReadHoldingRegistersFunction"/> class.
         /// </summary>
         /// <param name="commandParameters">The modbus command parameters.</param>
-        public ReadHoldingRegistersFunction(ModbusCommandParameters commandParameters) : base(commandParameters)
+        public ReadHoldingRegistersFunction(ModbusCommandParameters commandParameters) : base(commandParameters) //pristupamo svim parametrima klase preko commandParameters
         {
             CheckArguments(MethodBase.GetCurrentMethod(), typeof(ModbusReadCommandParameters));
         }
@@ -40,7 +40,7 @@ namespace Modbus.ModbusFunctions
 		}
 
 		/// <inheritdoc />
-		public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)
+		public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)//prima niz bajtova od gornje metode
         {
 			//TO DO: IMPLEMENT
 
@@ -72,3 +72,4 @@ namespace Modbus.ModbusFunctions
 		}
     }
 }
+

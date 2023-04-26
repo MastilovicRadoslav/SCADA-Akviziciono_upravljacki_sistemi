@@ -10,7 +10,7 @@ namespace Modbus.ModbusFunctions
     /// <summary>
     /// Class containing logic for parsing and packing modbus read input registers functions/requests.
     /// </summary>
-    public class ReadInputRegistersFunction : ModbusFunction
+    public class ReadInputRegistersFunction : ModbusFunction //Citanje analognog ulaza
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ReadInputRegistersFunction"/> class.
