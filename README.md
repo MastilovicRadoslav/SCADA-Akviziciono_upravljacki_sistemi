@@ -2,4 +2,4 @@
 
 dCom - SCADA stanica.
 
-mdbSim - Postrojenje cime upravlja SCADA stanica.
+Modbus - Postrojenje cime upravlja SCADA stanica.
