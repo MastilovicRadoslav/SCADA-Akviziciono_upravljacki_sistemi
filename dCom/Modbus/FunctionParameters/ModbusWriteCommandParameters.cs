@@ -5,8 +5,8 @@
     /// </summary>
 	public class ModbusWriteCommandParameters : ModbusCommandParameters //Upisivanje
 	{	//podaci
-		private ushort outputAddress; //adresa
-		private ushort value;	//vrijednosti sa te adrese
+		private ushort outputAddress; //adresa registra
+		private ushort value;	//vrijednosti koju zelimo da postavimo
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ModbusWriteCommandParameters"/> class.

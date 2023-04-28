@@ -28,25 +28,28 @@ namespace Modbus.ModbusFunctions
 			//ModbusReadCommandParameters mdmReadCommParams = this.CommandParameters as ModbusReadCommandParameters;    <-- ovo mogu koristit pa dolje ne kastovat u naslijedjenu klasu
 
 			byte[] paket = new byte[12];//sabrali bajtove, imamo niz od 12 elemenata 
-			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.TransactionId)), 0, paket, 0, 2);//od koje kreces pozicije u izvornom nizu, gdje prekopiravas, na koju poziciju i velicina toga sto prekopiras
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.TransactionId)), 0, paket, 0, 2);
 			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.ProtocolId)), 0, paket, 2, 2);
 			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.Length)), 0, paket, 4, 2);
-			paket[6] = CommandParameters.UnitId;//samo zalijepimo UnitId na svoju poziciju
+			paket[6] = CommandParameters.UnitId;//samo zalijepimo UnitId na svoju poziciju, ne treba ga kastovat jer je velicine jedan bajt, ne treba ga pretvarati u mrezni oblik jer jedan bajt se ne pretvara kad se salje kroz mrezu
 			paket[7] = CommandParameters.FunctionCode;//samo zalijepimo FunctionCode na svoju poziciju
-			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)((ModbusReadCommandParameters)CommandParameters).StartAddress)), 0, paket, 8, 2);//jos jedno kastovanje jer su ova polja u naslijedjenoj klasi dodata
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)((ModbusReadCommandParameters)CommandParameters).StartAddress)), 0, paket, 8, 2);
 			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)((ModbusReadCommandParameters)CommandParameters).Quantity)), 0, paket, 10, 2);
 
 			return paket;
 		}
+		//(short)CommandParameters.TransactionId) - kastovanje u odgovarajucu velicinu polja za svaki signal
+		//BitConverter.GetBytes() - rukuje sa podacima short, int ... i pretvara ih u niz bajtova, funkcija i ugradjena metoda u funkciju
+		//IPAddress.HostToNetworkOrder() - host --> network konverzija, prima vrijednosti int, short ... pa smo zato ovo gore prvo kastovali u short jer sa ushort moze doci do problema pri okretanju vrijednosti
+		//Buffer.BlockCopy(niz koji kopiramo, odakle u tom izvornom nizu krecemo sa kopiranjem, destinacija gdje kopiramo niz bajtova, na koju poziciju u nizu, kolika je velicina podatka koji kopiramo u bajtovima) - smjestanje bajtova u odgovarajuci niz koji smo napravili
+		//(ModbusReadCommandParameters)CommandParameters).Quantity) - kastujemo u ovu klasu jer uzimamo vrijednosti iz te klase koja nasledjuje baznu klasu i prosiruje je sa tim poljima
 
-        /// <inheritdoc />
-        public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)//pristupamo odredjenom parametru u poruci i ocitavamo vrijednost koja je poslata
+		/// <inheritdoc />
+		public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)//pristupamo odredjenom parametru u poruci i ocitavamo vrijednost koja je poslata
         {
 			//TO DO: IMPLEMENT
 
-
-			ModbusReadCommandParameters mdmReadCommParams = this.CommandParameters as ModbusReadCommandParameters;
-			Dictionary<Tuple<PointType, ushort>, ushort> dic = new Dictionary<Tuple<PointType, ushort>, ushort>();
+			var ret = new Dictionary<Tuple<PointType, ushort>, ushort>();
 
 			if (response[7] == CommandParameters.FunctionCode + 0x80)
 			{
@@ -54,23 +57,18 @@ namespace Modbus.ModbusFunctions
 			}
 			else
 			{
-				ushort quantity = response[8];
-
+				ushort adresa = ((ModbusReadCommandParameters)CommandParameters).StartAddress;
 				ushort value;
-
-				int p1 = 7, p2 = 8;
-				for (int i = 0; i < quantity / 2; i++)
+				for (int i = 0; i < response[8]; i = i + 2)
 				{
-					byte port1 = response[p1 += 2];
-					byte port2 = response[p2 += 2];
-
-					value = (ushort)(port2 + (port1 << 8));
-					dic.Add(new Tuple<PointType, ushort>(PointType.ANALOG_INPUT, (ushort)(mdmReadCommParams.StartAddress + i)), value);
-
-
+					value = BitConverter.ToUInt16(response, (i + 9));
+					value = (ushort)IPAddress.NetworkToHostOrder((short)value);
+					ret.Add(new Tuple<PointType, ushort>(PointType.ANALOG_INPUT, adresa), value);
+					adresa++;
 				}
 			}
-			return dic;
+
+			return ret;
 		}
 	}
 }
@@ -79,3 +77,5 @@ namespace Modbus.ModbusFunctions
 //PointType - digitalni/analogni ulaz/izlaz
 //ushort - adresa signala
 //ushort - vrijednost koju smo ocitali sa simulatora
+
+

@@ -6,7 +6,7 @@
     public class ModbusReadCommandParameters : ModbusCommandParameters //Citanje
 	{   //podaci
 		private ushort startAddress; //adresa signala
-		private ushort quantity;	 //vrijednost 1
+		private ushort quantity;	 //koliko vrijednosti za ocitavanje
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ModbusReadCommandParameters"/> class.
