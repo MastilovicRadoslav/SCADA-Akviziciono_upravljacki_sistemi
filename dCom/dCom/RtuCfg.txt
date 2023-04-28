@@ -1,10 +1,10 @@
 RTU 15 
 TCP 25252
 
-HR_INT  10  1000  0  20  600  400  AO  @UdaKapW1  #
-DI_REG  8   2000  0  0   1    0    DI  @IndPrep	  #
-DO_REG  10  3000  0  0  0     1    0  DO  @StaOpen	# 
-DO_REG  10  3001  0  0  0     1    0  DO  @StaClose	 #
+HR_INT  1  1000  0  20  600  400  AO  @UdaKapW1  #
+DI_REG  1  2000  0  0   1    0    DI  @IndPrepr	 #
+DO_REG  1  3000  0  0   1    0    DO  @StaOpen	 # 
+DO_REG  1  3001  0  0   1    0    DO  @StaClose	 #
 
 
 
