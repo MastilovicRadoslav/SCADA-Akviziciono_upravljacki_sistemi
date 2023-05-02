@@ -45,7 +45,7 @@ namespace Modbus.ModbusFunctions
         /// <inheritdoc />
         public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)
         {
-			var ret = new Dictionary<Tuple<PointType, ushort>, ushort>();
+			Dictionary<Tuple<PointType, ushort>, ushort> ret = new Dictionary<Tuple<PointType, ushort>, ushort>();
 
 			if (response[7] == CommandParameters.FunctionCode + 0x80)
 			{

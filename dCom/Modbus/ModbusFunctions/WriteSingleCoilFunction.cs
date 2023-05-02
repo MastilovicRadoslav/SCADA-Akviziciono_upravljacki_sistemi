@@ -10,7 +10,7 @@ namespace Modbus.ModbusFunctions
     /// <summary>
     /// Class containing logic for parsing and packing modbus write coil functions/requests.
     /// </summary>
-    public class WriteSingleCoilFunction : ModbusFunction
+    public class WriteSingleCoilFunction : ModbusFunction//Digitalni izlaz
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="WriteSingleCoilFunction"/> class.

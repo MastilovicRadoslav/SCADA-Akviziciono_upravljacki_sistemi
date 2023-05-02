@@ -44,7 +44,7 @@ namespace Modbus.ModbusFunctions
         }
 
 		//(short)CommandParameters.TransactionId) - kastovanje u odgovarajucu velicinu polja za svaki signal
-		//IPAddress.HostToNetworkOrder() - host --> network konverzija, prima vrijednosti int, short ... pa smo zato ovo gore prvo kastovali u short jer sa ushort moze doci do problema pri okretanju vrijednosti
+		//IPAddress.HostToNetworkOrder() - host --> network konverzija, prima vrijednosti int, short ... pa smo zato ovo gore prvo kastovali u short jer sa ushort moze doci do problema pri okretanju vrijednosti(bajtova)
 		//BitConverter.GetBytes() - rukuje sa podacima short, int ... i pretvara ih u niz bajtova, funkcija i ugradjena metoda u funkciju
 		//Buffer.BlockCopy(niz koji kopiramo, odakle u tom izvornom nizu krecemo sa kopiranjem, destinacija gdje kopiramo niz bajtova, na koju poziciju u nizu, kolika je velicina podatka koji kopiramo u bajtovima) - smjestanje bajtova u odgovarajuci niz koji smo napravili
 
@@ -52,7 +52,7 @@ namespace Modbus.ModbusFunctions
 		/// <inheritdoc />
 		public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)//pristupamo odredjenom parametru u poruci i ocitavamo vrijednost koja je poslata
 		{
-            var ret = new Dictionary<Tuple<PointType, ushort>, ushort>();
+			Dictionary<Tuple<PointType, ushort>, ushort> ret = new Dictionary<Tuple<PointType, ushort>, ushort>();
 
             if (response[7] == CommandParameters.FunctionCode + 0x80)
             {

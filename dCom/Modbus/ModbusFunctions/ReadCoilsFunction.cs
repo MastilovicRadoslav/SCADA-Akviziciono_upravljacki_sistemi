@@ -46,7 +46,7 @@ namespace Modbus.ModbusFunctions
 		/// <inheritdoc />
 		public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)
         {
-            var ret = new Dictionary<Tuple<PointType, ushort>, ushort>();
+			Dictionary<Tuple<PointType, ushort>, ushort> ret = new Dictionary<Tuple<PointType, ushort>, ushort>();
 
             if (response[7] == CommandParameters.FunctionCode + 0x80)
             {
@@ -80,3 +80,7 @@ namespace Modbus.ModbusFunctions
         }
     }
 }
+
+//response[7] - pomocu njega ispitujemo da li je doslo do neke greske ili nije  - Function code
+//response[8] - koliko ima bajtova pristiglih da prodjemo - Byte
+//response[9] - data dio, pristigle vrijednosti - Data

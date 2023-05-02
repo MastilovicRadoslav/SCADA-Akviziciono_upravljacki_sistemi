@@ -10,7 +10,7 @@ namespace Modbus.ModbusFunctions
     /// <summary>
     /// Class containing logic for parsing and packing modbus write single register functions/requests.
     /// </summary>
-    public class WriteSingleRegisterFunction : ModbusFunction
+    public class WriteSingleRegisterFunction : ModbusFunction//Analogni izlaz
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="WriteSingleRegisterFunction"/> class.
@@ -22,7 +22,7 @@ namespace Modbus.ModbusFunctions
         }
 
         /// <inheritdoc />
-        public override byte[] PackRequest()
+        public override byte[] PackRequest()//sastavljamo poruku
         {
 			ModbusWriteCommandParameters mdmWriteCommParams = this.CommandParameters as ModbusWriteCommandParameters;//u neku promjenljivu smjestamo kastovanu klasu ModbusWriteCommandParameters koja nasledjuje baznu klasu ModbusCommandParameters da bi pristupili vrijednostima u njoj
 
@@ -43,21 +43,21 @@ namespace Modbus.ModbusFunctions
 		}
 
         /// <inheritdoc />
-        public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)
+        public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)//ocitavanje i postavljanje u rjecnik
         {
 			Dictionary<Tuple<PointType, ushort>, ushort> ret = new Dictionary<Tuple<PointType, ushort>, ushort>();//povratna vrijednost
 
-			if (response[7] == CommandParameters.FunctionCode + 0x80)
+			if (response[7] == CommandParameters.FunctionCode + 0x80) //da li je doslo do greske prilikom komunikacije izmedju simulatora i SCADA stanice, poruka onda nije validna za nas
 			{
 				HandeException(response[8]);
 			}
 			else
 			{
-				ushort adresa = BitConverter.ToUInt16(response, 8);//adresa se nalazi od 8 do 10 bajta
-				ushort value = BitConverter.ToUInt16(response, 10);//vrijednost se nalazi od 10 do 12 bajta
+				ushort adresa = BitConverter.ToUInt16(response, 8);//adresa se nalazi od 8 do 10 bajta, adresa signala kojeg smo promijenili
+				ushort value = BitConverter.ToUInt16(response, 10);//vrijednost se nalazi od 10 do 12 bajta, vrijednost koju smo postavili na taj signal
 				adresa = (ushort)IPAddress.NetworkToHostOrder((short)adresa);
 				value = (ushort)IPAddress.NetworkToHostOrder((short)value);
-				ret.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_OUTPUT, adresa), value);
+				ret.Add(new Tuple<PointType, ushort>(PointType.ANALOG_OUTPUT, adresa), value);
 			}
 
 			return ret;
