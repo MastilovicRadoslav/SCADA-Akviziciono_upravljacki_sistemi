@@ -1,22 +1,22 @@
 ﻿namespace Modbus.FunctionParameters
 {
-    /// <summary>
-    /// Class containing parameters for modbus read commands.
-    /// </summary>
-    public class ModbusReadCommandParameters : ModbusCommandParameters
-	{
-		private ushort startAddress;
-		private ushort quantity;
+	/// <summary>
+	/// Class containing parameters for modbus read commands.
+	/// </summary>
+	public class ModbusReadCommandParameters : ModbusCommandParameters //Citanje
+	{   //podaci
+		private ushort startAddress; //adresa signala
+		private ushort quantity;     //koliko vrijednosti za ocitavanje
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ModbusReadCommandParameters"/> class.
-        /// </summary>
-        /// <param name="length">The length of the request.</param>
-        /// <param name="functionCode">The function code.</param>
-        /// <param name="startAddress">The start address.</param>
-        /// <param name="quantity">The quantity.</param>
-        /// <param name="transactionId">The transaction identifier.</param>
-        /// <param name="unitId">The unit identifier.</param>
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ModbusReadCommandParameters"/> class.
+		/// </summary>
+		/// <param name="length">The length of the request.</param>
+		/// <param name="functionCode">The function code.</param>
+		/// <param name="startAddress">The start address.</param>
+		/// <param name="quantity">The quantity.</param>
+		/// <param name="transactionId">The transaction identifier.</param>
+		/// <param name="unitId">The unit identifier.</param>
 		public ModbusReadCommandParameters(ushort length, byte functionCode, ushort startAddress, ushort quantity, ushort transactionId, byte unitId)
 				: base(length, functionCode, transactionId, unitId)
 		{

@@ -1,22 +1,22 @@
 ﻿namespace Modbus.FunctionParameters
 {
-    /// <summary>
-    /// Class containing parameters for modbus write commands.
-    /// </summary>
-	public class ModbusWriteCommandParameters : ModbusCommandParameters
-	{
-		private ushort outputAddress;
-		private ushort value;
+	/// <summary>
+	/// Class containing parameters for modbus write commands.
+	/// </summary>
+	public class ModbusWriteCommandParameters : ModbusCommandParameters //Upisivanje
+	{   //podaci
+		private ushort outputAddress; //adresa registra
+		private ushort value;   //vrijednosti koju zelimo da postavimo
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ModbusWriteCommandParameters"/> class.
-        /// </summary>
-        /// <param name="length">The length.</param>
-        /// <param name="functionCode">The function code.</param>
-        /// <param name="outputAddress">The output address.</param>
-        /// <param name="value">The value.</param>
-        /// <param name="transactionId">The transaction identifier.</param>
-        /// <param name="unitId">The unit identifier.</param>
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ModbusWriteCommandParameters"/> class.
+		/// </summary>
+		/// <param name="length">The length.</param>
+		/// <param name="functionCode">The function code.</param>
+		/// <param name="outputAddress">The output address.</param>
+		/// <param name="value">The value.</param>
+		/// <param name="transactionId">The transaction identifier.</param>
+		/// <param name="unitId">The unit identifier.</param>
 		public ModbusWriteCommandParameters(ushort length, byte functionCode, ushort outputAddress, ushort value, ushort transactionId, byte unitId)
 			: base(length, functionCode, transactionId, unitId)
 		{

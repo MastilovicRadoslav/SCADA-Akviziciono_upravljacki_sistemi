@@ -45,7 +45,7 @@ namespace Modbus.ModbusFunctions
         /// <inheritdoc />
         public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)
         {
-            var ret = new Dictionary<Tuple<PointType, ushort>, ushort>();//povratna vrijednost
+			Dictionary<Tuple<PointType, ushort>, ushort> ret = new Dictionary<Tuple<PointType, ushort>, ushort>();//povratna vrijednost
 
 			if (response[7] == CommandParameters.FunctionCode + 0x80)
             {
@@ -53,9 +53,9 @@ namespace Modbus.ModbusFunctions
             }
             else
             {
-                ushort adresa = BitConverter.ToUInt16(response, (8));//adresa se nalazi od 8 do 10 bajta
+                ushort adresa = BitConverter.ToUInt16(response, 8);//adresa se nalazi od 8 do 10 bajta
+                ushort value = BitConverter.ToUInt16(response, 10);//vrijednost se nalazi od 10 do 12 bajta
 				adresa = (ushort)IPAddress.NetworkToHostOrder((short)adresa);
-                ushort value = BitConverter.ToUInt16(response, (10));//vrijednost se nalazi od 10 do 12 bajta
 				value = (ushort)IPAddress.NetworkToHostOrder((short)value);
                 ret.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_OUTPUT, adresa), value);
             }
