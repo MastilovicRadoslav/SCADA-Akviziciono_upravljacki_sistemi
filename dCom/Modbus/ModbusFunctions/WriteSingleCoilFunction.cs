@@ -10,7 +10,7 @@ namespace Modbus.ModbusFunctions
     /// <summary>
     /// Class containing logic for parsing and packing modbus write coil functions/requests.
     /// </summary>
-    public class WriteSingleCoilFunction : ModbusFunction //Digitalni izlaz
+    public class WriteSingleCoilFunction : ModbusFunction
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="WriteSingleCoilFunction"/> class.
@@ -24,40 +24,38 @@ namespace Modbus.ModbusFunctions
         /// <inheritdoc />
         public override byte[] PackRequest()
         {
-			//TO DO: IMPLEMENT
-			byte[] paket = new byte[12]; 
-			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.TransactionId)), 0, paket, 0, 2);
-			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.ProtocolId)), 0, paket, 2, 2);
-			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.Length)), 0, paket, 4, 2);
-			paket[6] = CommandParameters.UnitId;
-			paket[7] = CommandParameters.FunctionCode;
-			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)((ModbusWriteCommandParameters)CommandParameters).OutputAddress)), 0, paket, 8, 2);//samo ovo drugacije
-			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)((ModbusWriteCommandParameters)CommandParameters).Value)), 0, paket, 10, 2);//samo ovo drugacije
+            byte[] paket = new byte[12];
 
-			return paket;
-		}
+            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.TransactionId)), 0, paket, 0, 2);
+            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.ProtocolId)), 0, paket, 2, 2);
+            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.Length)), 0, paket, 4, 2);
+            paket[6] = CommandParameters.UnitId;
+            paket[7] = CommandParameters.FunctionCode;
+            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)((ModbusWriteCommandParameters)CommandParameters).OutputAddress)), 0, paket, 8, 2);
+            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)((ModbusWriteCommandParameters)CommandParameters).Value)), 0, paket, 10, 2);
+
+            return paket;
+        }
 
         /// <inheritdoc />
         public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)
         {
-			//TO DO: IMPLEMENT
-			var ret = new Dictionary<Tuple<PointType, ushort>, ushort>();
+            var ret = new Dictionary<Tuple<PointType, ushort>, ushort>();//povratna vrijednost
 
 			if (response[7] == CommandParameters.FunctionCode + 0x80)
-			{
-				HandeException(response[8]);
-			}
-			else
-			{
-				ushort adresa = BitConverter.ToUInt16(response, (8));
+            {
+                HandeException(response[8]);
+            }
+            else
+            {
+                ushort adresa = BitConverter.ToUInt16(response, (8));//adresa se nalazi od 8 do 10 bajta
 				adresa = (ushort)IPAddress.NetworkToHostOrder((short)adresa);
-				ushort value = BitConverter.ToUInt16(response, (10));
+                ushort value = BitConverter.ToUInt16(response, (10));//vrijednost se nalazi od 10 do 12 bajta
 				value = (ushort)IPAddress.NetworkToHostOrder((short)value);
-				ret.Add(new Tuple<PointType, ushort>(PointType.ANALOG_OUTPUT, adresa), value);
-			}
+                ret.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_OUTPUT, adresa), value);
+            }
 
-			return ret;
-
-		}
+            return ret;
+        }
     }
 }

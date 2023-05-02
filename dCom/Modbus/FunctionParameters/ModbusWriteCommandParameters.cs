@@ -3,10 +3,10 @@
     /// <summary>
     /// Class containing parameters for modbus write commands.
     /// </summary>
-	public class ModbusWriteCommandParameters : ModbusCommandParameters //Upisivanje
-	{	//podaci
-		private ushort outputAddress; //adresa registra
-		private ushort value;	//vrijednosti koju zelimo da postavimo
+	public class ModbusWriteCommandParameters : ModbusCommandParameters
+	{
+		private ushort outputAddress;
+		private ushort value;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ModbusWriteCommandParameters"/> class.

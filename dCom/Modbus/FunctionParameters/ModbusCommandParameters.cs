@@ -3,13 +3,13 @@
     /// <summary>
     /// Class containing parameters for modbus commands.
     /// </summary>
-	public abstract class ModbusCommandParameters //bazna klasa, ima polja koja su fiksna za sve tipove zahtjeva
-	{	//zaglavlje
-		private ushort transactionId; //Koji je Id poruke koji se salje simulatoru
-		private ushort protocolId;	  //Oznacava da se radi o Modbus protokolu
-		private ushort length;		  //Velicina cijele poruke
-		private byte unitId;		  //
-		private byte functionCode;	  //Da li se radi o citanju/upisivanju analognog/digitalnog signala
+	public abstract class ModbusCommandParameters
+	{
+		private ushort transactionId;
+		private ushort protocolId;
+		private ushort length;
+		private byte unitId;
+		private byte functionCode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ModbusCommandParameters"/> class.
