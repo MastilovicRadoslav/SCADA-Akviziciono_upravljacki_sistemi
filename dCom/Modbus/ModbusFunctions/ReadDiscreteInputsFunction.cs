@@ -10,7 +10,7 @@ namespace Modbus.ModbusFunctions
     /// <summary>
     /// Class containing logic for parsing and packing modbus read discrete inputs functions/requests.
     /// </summary>
-    public class ReadDiscreteInputsFunction : ModbusFunction
+    public class ReadDiscreteInputsFunction : ModbusFunction//Digitalni ulaz
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ReadDiscreteInputsFunction"/> class.
@@ -24,53 +24,60 @@ namespace Modbus.ModbusFunctions
         /// <inheritdoc />
         public override byte[] PackRequest()
         {
-            byte[] paket = new byte[12];
+			ModbusReadCommandParameters mdmReadCommParams = this.CommandParameters as ModbusReadCommandParameters;//u neku promjenljivu smjestamo kastovanu klasu ModbusReadCommandParameters koja nasledjuje baznu klasu ModbusCommandParameters da bi pristupili vrijednostima u njoj
 
-            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.TransactionId)), 0, paket, 0, 2);
-            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.ProtocolId)), 0, paket, 2, 2);
-            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.Length)), 0, paket, 4, 2);
-            paket[6] = CommandParameters.UnitId;
-            paket[7] = CommandParameters.FunctionCode;
-            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)((ModbusReadCommandParameters)CommandParameters).StartAddress)), 0, paket, 8, 2);
-            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)((ModbusReadCommandParameters)CommandParameters).Quantity)), 0, paket, 10, 2);
+			byte[] mdbRequest = new byte[12];//sabrali bajtove, imamo niz od 12 elemenata
 
-            return paket;
-        }
+
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.TransactionId)), 0, mdbRequest, 0, 2);
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.ProtocolId)), 0, mdbRequest, 2, 2);
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.Length)), 0, mdbRequest, 4, 2);
+
+			mdbRequest[6] = CommandParameters.UnitId;//samo zalijepimo UnitId na svoju poziciju, ne treba ga kastovat jer je velicine jedan bajt, ne treba ga pretvarati u mrezni oblik jer jedan bajt se ne pretvara kad se salje kroz mrezu
+			mdbRequest[7] = CommandParameters.FunctionCode;//samo zalijepimo FunctionCode na svoju poziciju
+
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)mdmReadCommParams.StartAddress)), 0, mdbRequest, 8, 2);
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)mdmReadCommParams.Quantity)), 0, mdbRequest, 10, 2);
+
+			return mdbRequest;
+		}
 
         /// <inheritdoc />
         public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)
         {
-            var ret = new Dictionary<Tuple<PointType, ushort>, ushort>();
+			var ret = new Dictionary<Tuple<PointType, ushort>, ushort>();
 
-            if (response[7] == CommandParameters.FunctionCode + 0x80)
-            {
-                HandeException(response[8]);
-            }
-            else
-            {
-                int cnt = 0;
-                ushort adresa = ((ModbusReadCommandParameters)CommandParameters).StartAddress;
-                ushort value;
-                byte maska = 1;
-                for (int i = 0; i < response[8]; i++)
-                {
-                    byte tempByte = response[9 + i];
-                    for (int j = 0; j < 8; j++)
-                    {
-                        value = (ushort)(tempByte & maska);
-                        tempByte >>= 1;
-                        ret.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_INPUT, adresa), value);
-                        cnt++;
-                        adresa++;
-                        if (cnt == ((ModbusReadCommandParameters)CommandParameters).Quantity)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
+			if (response[7] == CommandParameters.FunctionCode + 0x80)
+			{
+				HandeException(response[8]);
+			}
+			else
+			{
+				int cnt = 0;
+				ushort adresa = ((ModbusReadCommandParameters)CommandParameters).StartAddress;
+				ushort value;
+				byte mask = 1;
+				for (int i = 0; i < response[8]; i++)//izvlaci bajt po bajt
+				{
+					byte tempByte = response[9 + i];//prvi bajt, drugi bajt ..
+					for (int j = 0; j < 8; j++)//od 0 do 8 i radi sa tim izvucenim bajtom, maskom i sa siftovanjem --> obrada svakog bajta
+					{
+						value = (ushort)(tempByte & mask);//uzimamo vrijednost kada uradimo logicko i sa maskom koja je 1
+						tempByte >>= 1;//siftujemo nas bajt za jedno mjesto u desno i uzimamo sledecu vrijednost bajta koju cemo opet sa logicko i uraditi sa maskom
+						ret.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_INPUT, adresa), value);//ubacuj u Dictionary
+						cnt++;//da bi znali da prekinemo izvrsavanje prije 
+						adresa++;//ako je prva adresa npr 3000 onda je sledeca 3001 ...
+						if (cnt == ((ModbusReadCommandParameters)CommandParameters).Quantity)//prekidamo  ako broj obradjenih signala bude jednak broju ukupnih signala
+						{
+							break;//prekini ako nema vise signala
+						}
+					}
+				}
+			}
 
-            return ret;
-        }
-    }
+			return ret;
+
+			//1 bit - jedna vrijednost
+		}
+	}
 }

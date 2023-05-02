@@ -10,8 +10,8 @@ namespace Modbus.ModbusFunctions
     /// <summary>
     /// Class containing logic for parsing and packing modbus read input registers functions/requests.
     /// </summary>
-    public class ReadInputRegistersFunction : ModbusFunction
-    {
+    public class ReadInputRegistersFunction : ModbusFunction //Citanje analognog ulaza
+	{
         /// <summary>
         /// Initializes a new instance of the <see cref="ReadInputRegistersFunction"/> class.
         /// </summary>
@@ -22,24 +22,36 @@ namespace Modbus.ModbusFunctions
         }
 
         /// <inheritdoc />
-        public override byte[] PackRequest()
-        {
-            byte[] paket = new byte[12];
+        public override byte[] PackRequest()//pristupamo svim propertijima klase preko commandParameters i pakujemo u poruku
+		{
 
-            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.TransactionId)), 0, paket, 0, 2);
-            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.ProtocolId)), 0, paket, 2, 2);
-            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.Length)), 0, paket, 4, 2);
-            paket[6] = CommandParameters.UnitId;
-            paket[7] = CommandParameters.FunctionCode;
-            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)((ModbusReadCommandParameters)CommandParameters).StartAddress)), 0, paket, 8, 2);
-            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)((ModbusReadCommandParameters)CommandParameters).Quantity)), 0, paket, 10, 2);
+			ModbusReadCommandParameters mdmReadCommParams = this.CommandParameters as ModbusReadCommandParameters;//u neku promjenljivu smjestamo kastovanu klasu ModbusReadCommandParameters koja nasledjuje baznu klasu ModbusCommandParameters da bi pristupili vrijednostima u njoj
 
-            return paket;
+			byte[] mdbRequest = new byte[12];//sabrali bajtove, imamo niz od 12 elemenata
+
+
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.TransactionId)), 0, mdbRequest, 0, 2);
+            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.ProtocolId)), 0, mdbRequest, 2, 2);
+            Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)CommandParameters.Length)), 0, mdbRequest, 4, 2);
+			
+            mdbRequest[6] = CommandParameters.UnitId;//samo zalijepimo UnitId na svoju poziciju, ne treba ga kastovat jer je velicine jedan bajt, ne treba ga pretvarati u mrezni oblik jer jedan bajt se ne pretvara kad se salje kroz mrezu
+			mdbRequest[7] = CommandParameters.FunctionCode;//samo zalijepimo FunctionCode na svoju poziciju
+
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)mdmReadCommParams.StartAddress)), 0, mdbRequest, 8, 2);
+			Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)mdmReadCommParams.Quantity)), 0, mdbRequest, 10, 2);
+			
+            return mdbRequest;
         }
 
-        /// <inheritdoc />
-        public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)
-        {
+		//(short)CommandParameters.TransactionId) - kastovanje u odgovarajucu velicinu polja za svaki signal
+		//IPAddress.HostToNetworkOrder() - host --> network konverzija, prima vrijednosti int, short ... pa smo zato ovo gore prvo kastovali u short jer sa ushort moze doci do problema pri okretanju vrijednosti
+		//BitConverter.GetBytes() - rukuje sa podacima short, int ... i pretvara ih u niz bajtova, funkcija i ugradjena metoda u funkciju
+		//Buffer.BlockCopy(niz koji kopiramo, odakle u tom izvornom nizu krecemo sa kopiranjem, destinacija gdje kopiramo niz bajtova, na koju poziciju u nizu, kolika je velicina podatka koji kopiramo u bajtovima) - smjestanje bajtova u odgovarajuci niz koji smo napravili
+
+
+		/// <inheritdoc />
+		public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)//pristupamo odredjenom parametru u poruci i ocitavamo vrijednost koja je poslata
+		{
             var ret = new Dictionary<Tuple<PointType, ushort>, ushort>();
 
             if (response[7] == CommandParameters.FunctionCode + 0x80)
@@ -63,3 +75,8 @@ namespace Modbus.ModbusFunctions
         }
     }
 }
+
+//Typle - grupise dva tipa podatka (PointType, ushort)
+//PointType - digitalni/analogni ulaz/izlaz
+//ushort - adresa signala
+//ushort - vrijednost koju smo ocitali sa simulatora
