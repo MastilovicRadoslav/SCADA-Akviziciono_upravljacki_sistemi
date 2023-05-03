@@ -43,28 +43,28 @@ namespace Modbus.ModbusFunctions
 		}
 
         /// <inheritdoc />
-        public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)
+        public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)//pristupamo odredjenim bajtovima i ocitavamo vrijednosti
         {
-            var ret = new Dictionary<Tuple<PointType, ushort>, ushort>();
+			Dictionary<Tuple<PointType, ushort>, ushort> dictionary = new Dictionary<Tuple<PointType, ushort>, ushort>();
 
-            if (response[7] == CommandParameters.FunctionCode + 0x80)
-            {
+            if (response[7] == CommandParameters.FunctionCode + 0x80)//da li je doslo do greske prilikom komunikacije izmedju simulatora i SCADA stanice, poruka onda nije validna za nas
+			{
                 HandeException(response[8]);
             }
             else
             {
-                ushort adresa = ((ModbusReadCommandParameters)CommandParameters).StartAddress;
-                ushort value;
-                for (int i = 0; i < response[8]; i = i + 2)
+                ushort adresa = ((ModbusReadCommandParameters)CommandParameters).StartAddress;//adresa sa koje citamo
+                ushort value;//vrijednost
+                for (int i = 0; i < response[8]; i += 2)//u Byte imamo podatak koliko Byte imamo ukupno, ushort - 2 bajta
                 {
-                    value = BitConverter.ToUInt16(response, (i + 9));
-                    value = (ushort)IPAddress.NetworkToHostOrder((short)value);
-                    ret.Add(new Tuple<PointType, ushort>(PointType.ANALOG_OUTPUT, adresa), value);
-                    adresa++;
+                    value = BitConverter.ToUInt16(response, (i + 9));//pristupamo Date dijelu
+                    value = (ushort)IPAddress.NetworkToHostOrder((short)value);//izvlacimo iz njega jedan ushort, sa hostovanjem
+					dictionary.Add(new Tuple<PointType, ushort>(PointType.ANALOG_OUTPUT, adresa), value);//ubacujemo u Dictionary, koji tip registra smo azurirali, koja je njegova adresa i koje je njegova nova vrijednost
+                    adresa++;//sledeca adresa
                 }
             }
 
-            return ret;
+            return dictionary;
         }
     }
 }

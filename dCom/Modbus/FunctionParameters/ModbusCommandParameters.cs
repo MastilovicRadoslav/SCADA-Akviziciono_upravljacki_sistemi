@@ -9,7 +9,7 @@
 		private ushort protocolId;    //Oznacava da se radi o Modbus protokolu
 		private ushort length;        //Velicina cijele poruke
 		private byte unitId;          //
-		private byte functionCode;    //Da li se radi o citanju/upisivanju analognog/digitalnog signala
+		private byte functionCode;    //Da li se radi o citanju/upisivanju analognog/digitalnog signala, podatak kakvu poruku saljemo simulatoru, da li citamo pisemo
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ModbusCommandParameters"/> class.

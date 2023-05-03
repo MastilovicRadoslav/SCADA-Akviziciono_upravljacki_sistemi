@@ -45,8 +45,9 @@ namespace Modbus.ModbusFunctions
         /// <inheritdoc />
         public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)
         {
-			Dictionary<Tuple<PointType, ushort>, ushort> ret = new Dictionary<Tuple<PointType, ushort>, ushort>();
-
+			
+			Dictionary<Tuple<PointType, ushort>, ushort> dictionary = new Dictionary<Tuple<PointType, ushort>, ushort>();
+			
 			if (response[7] == CommandParameters.FunctionCode + 0x80)
 			{
 				HandeException(response[8]);
@@ -59,23 +60,23 @@ namespace Modbus.ModbusFunctions
 				byte mask = 1;
 				for (int i = 0; i < response[8]; i++)//izvlaci bajt po bajt
 				{
-					byte tempByte = response[9 + i];//prvi bajt, drugi bajt ..
+					byte cntByte = response[9 + i];//prvi bajt, drugi bajt ..
 					for (int j = 0; j < 8; j++)//od 0 do 8 i radi sa tim izvucenim bajtom, maskom i sa siftovanjem --> obrada svakog bajta
 					{
-						value = (ushort)(tempByte & mask);//uzimamo vrijednost kada uradimo logicko i sa maskom koja je 1
-						tempByte >>= 1;//siftujemo nas bajt za jedno mjesto u desno i uzimamo sledecu vrijednost bajta koju cemo opet sa logicko i uraditi sa maskom
-						ret.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_INPUT, adresa), value);//ubacuj u Dictionary
+						value = (ushort)(cntByte & mask);//uzimamo vrijednost kada uradimo logicko i sa maskom koja je 1
+						cntByte >>= 1;//siftujemo nas bajt za jedno mjesto u desno i uzimamo sledecu vrijednost bajta koju cemo opet sa logicko i uraditi sa maskom
+						dictionary.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_INPUT, adresa), value);//ubacuj u Dictionary
 						cnt++;//da bi znali da prekinemo izvrsavanje prije 
 						adresa++;//ako je prva adresa npr 3000 onda je sledeca 3001 ...
-						if (cnt == ((ModbusReadCommandParameters)CommandParameters).Quantity)//prekidamo  ako broj obradjenih signala bude jednak broju ukupnih signala
+						if (cnt == ((ModbusReadCommandParameters)CommandParameters).Quantity)//prekidamo  ako broj obradjenih signala bude jednak broju ukupnih signala	koji su proslijedjeni
 						{
-							break;//prekini ako nema vise signala
+							break;//prekini ako nema vise signala i idi na drugi bajt ako ga ima
 						}
 					}
 				}
 			}
 
-			return ret;
+			return dictionary;
 
 			//1 bit - jedna vrijednost
 		}

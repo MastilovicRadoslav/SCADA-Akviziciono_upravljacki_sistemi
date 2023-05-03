@@ -46,7 +46,7 @@ namespace Modbus.ModbusFunctions
 		/// <inheritdoc />
 		public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)
         {
-			Dictionary<Tuple<PointType, ushort>, ushort> ret = new Dictionary<Tuple<PointType, ushort>, ushort>();
+			Dictionary<Tuple<PointType, ushort>, ushort> dictionary = new Dictionary<Tuple<PointType, ushort>, ushort>();
 
             if (response[7] == CommandParameters.FunctionCode + 0x80)
             {
@@ -60,12 +60,12 @@ namespace Modbus.ModbusFunctions
                 byte maska = 1;
                 for (int i = 0; i < response[8]; i++)
                 {
-                    byte tempByte = response[9 + i];
+                    byte cntByte = response[9 + i];
                     for (int j = 0; j < 8; j++)
                     {
-                        value = (ushort)(tempByte & maska);
-                        tempByte >>= 1;
-                        ret.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_OUTPUT, adresa), value);
+                        value = (ushort)(cntByte & maska);
+                        cntByte >>= 1;
+                        dictionary.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_OUTPUT, adresa), value);
                         cnt++;
                         adresa++;
                         if (cnt == ((ModbusReadCommandParameters)CommandParameters).Quantity)
@@ -76,7 +76,7 @@ namespace Modbus.ModbusFunctions
                 }
             }
 
-            return ret;
+            return dictionary;
         }
     }
 }
