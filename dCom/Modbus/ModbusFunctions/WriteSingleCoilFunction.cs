@@ -53,11 +53,11 @@ namespace Modbus.ModbusFunctions
             }
             else
             {
-                ushort adresa = BitConverter.ToUInt16(response, 8);//adresa se nalazi od 8 do 10 bajta
+                ushort address = BitConverter.ToUInt16(response, 8);//adresa se nalazi od 8 do 10 bajta
                 ushort value = BitConverter.ToUInt16(response, 10);//vrijednost se nalazi od 10 do 12 bajta
-				adresa = (ushort)IPAddress.NetworkToHostOrder((short)adresa);
+				address = (ushort)IPAddress.NetworkToHostOrder((short)address);
 				value = (ushort)IPAddress.NetworkToHostOrder((short)value);
-                ret.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_OUTPUT, adresa), value);
+                ret.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_OUTPUT, address), value);
             }
 
             return ret;

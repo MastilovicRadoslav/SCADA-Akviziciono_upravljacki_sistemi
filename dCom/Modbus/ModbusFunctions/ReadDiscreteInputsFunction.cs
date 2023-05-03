@@ -55,7 +55,7 @@ namespace Modbus.ModbusFunctions
 			else
 			{
 				int cnt = 0;
-				ushort adresa = ((ModbusReadCommandParameters)CommandParameters).StartAddress;
+				ushort address = ((ModbusReadCommandParameters)CommandParameters).StartAddress;
 				ushort value;
 				byte mask = 1;
 				for (int i = 0; i < response[8]; i++)//izvlaci bajt po bajt
@@ -65,9 +65,9 @@ namespace Modbus.ModbusFunctions
 					{
 						value = (ushort)(cntByte & mask);//uzimamo vrijednost kada uradimo logicko i sa maskom koja je 1
 						cntByte >>= 1;//siftujemo nas bajt za jedno mjesto u desno i uzimamo sledecu vrijednost bajta koju cemo opet sa logicko i uraditi sa maskom
-						dictionary.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_INPUT, adresa), value);//ubacuj u Dictionary
+						dictionary.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_INPUT, address), value);//ubacuj u Dictionary
 						cnt++;//da bi znali da prekinemo izvrsavanje prije 
-						adresa++;//ako je prva adresa npr 3000 onda je sledeca 3001 ...
+						address++;//ako je prva adresa npr 3000 onda je sledeca 3001 ...
 						if (cnt == ((ModbusReadCommandParameters)CommandParameters).Quantity)//prekidamo  ako broj obradjenih signala bude jednak broju ukupnih signala	koji su proslijedjeni
 						{
 							break;//prekini ako nema vise signala i idi na drugi bajt ako ga ima

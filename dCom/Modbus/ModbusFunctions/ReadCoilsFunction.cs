@@ -55,7 +55,7 @@ namespace Modbus.ModbusFunctions
             else
             {
                 int cnt = 0;
-                ushort adresa = ((ModbusReadCommandParameters)CommandParameters).StartAddress;
+                ushort address = ((ModbusReadCommandParameters)CommandParameters).StartAddress;
                 ushort value;
                 byte maska = 1;
                 for (int i = 0; i < response[8]; i++)
@@ -65,9 +65,9 @@ namespace Modbus.ModbusFunctions
                     {
                         value = (ushort)(cntByte & maska);
                         cntByte >>= 1;
-                        dictionary.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_OUTPUT, adresa), value);
+                        dictionary.Add(new Tuple<PointType, ushort>(PointType.DIGITAL_OUTPUT, address), value);
                         cnt++;
-                        adresa++;
+                        address++;
                         if (cnt == ((ModbusReadCommandParameters)CommandParameters).Quantity)
                         {
                             break;

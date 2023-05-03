@@ -53,14 +53,14 @@ namespace Modbus.ModbusFunctions
             }
             else
             {
-                ushort adresa = ((ModbusReadCommandParameters)CommandParameters).StartAddress;//adresa sa koje citamo
+                ushort address = ((ModbusReadCommandParameters)CommandParameters).StartAddress;//adresa sa koje citamo
                 ushort value;//vrijednost
                 for (int i = 0; i < response[8]; i += 2)//u Byte imamo podatak koliko Byte imamo ukupno, ushort - 2 bajta
                 {
                     value = BitConverter.ToUInt16(response, (i + 9));//pristupamo Date dijelu
                     value = (ushort)IPAddress.NetworkToHostOrder((short)value);//izvlacimo iz njega jedan ushort, sa hostovanjem
-					dictionary.Add(new Tuple<PointType, ushort>(PointType.ANALOG_OUTPUT, adresa), value);//ubacujemo u Dictionary, koji tip registra smo azurirali, koja je njegova adresa i koje je njegova nova vrijednost
-                    adresa++;//sledeca adresa
+					dictionary.Add(new Tuple<PointType, ushort>(PointType.ANALOG_OUTPUT, address), value);//ubacujemo u Dictionary, koji tip registra smo azurirali, koja je njegova adresa i koje je njegova nova vrijednost
+                    address++;//sledeca adresa
                 }
             }
 

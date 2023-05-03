@@ -60,14 +60,14 @@ namespace Modbus.ModbusFunctions
             }
             else
             {
-                ushort adresa = ((ModbusReadCommandParameters)CommandParameters).StartAddress;
+                ushort address = ((ModbusReadCommandParameters)CommandParameters).StartAddress;
                 ushort value;
                 for (int i = 0; i < response[8]; i = i + 2)
                 {
                     value = BitConverter.ToUInt16(response, (i + 9));
                     value = (ushort)IPAddress.NetworkToHostOrder((short)value);
-                    dictionary.Add(new Tuple<PointType, ushort>(PointType.ANALOG_INPUT, adresa), value);
-                    adresa++;
+                    dictionary.Add(new Tuple<PointType, ushort>(PointType.ANALOG_INPUT, address), value);
+                    address++;
                 }
             }
 
