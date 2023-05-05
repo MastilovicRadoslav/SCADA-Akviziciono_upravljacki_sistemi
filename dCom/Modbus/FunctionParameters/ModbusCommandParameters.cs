@@ -8,7 +8,7 @@
 		private ushort transactionId; //Koji je Id poruke koji se salje simulatoru
 		private ushort protocolId;    //Oznacava da se radi o Modbus protokolu
 		private ushort length;        //Velicina cijele poruke
-		private byte unitId;          //
+		private byte unitId;          //identifikacija
 		private byte functionCode;    //Da li se radi o citanju/upisivanju analognog/digitalnog signala, podatak kakvu poruku saljemo simulatoru, da li citamo pisemo
 
 		/// <summary>

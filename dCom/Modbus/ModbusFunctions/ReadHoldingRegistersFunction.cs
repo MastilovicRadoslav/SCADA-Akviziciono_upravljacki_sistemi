@@ -68,3 +68,7 @@ namespace Modbus.ModbusFunctions
         }
     }
 }
+//Typle - grupise dva tipa podatka (PointType, ushort)
+//PointType - digitalni/analogni ulaz/izlaz
+//ushort - adresa signala
+//ushort - vrijednost koju smo ocitali sa simulatora
