@@ -1,5 +1,6 @@
 ﻿using Common;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace ProcessingModule
@@ -9,11 +10,11 @@ namespace ProcessingModule
     /// </summary>
     public class Acquisitor : IDisposable
 	{
-		private AutoResetEvent acquisitionTrigger;
-        private IProcessingManager processingManager;
-        private Thread acquisitionWorker;
-		private IStateUpdater stateUpdater;
-		private IConfiguration configuration;
+		private AutoResetEvent acquisitionTrigger;//Sihronizacija svih niti koji se koriste u ovom projektu, pomocu njega cemo kasnije simulirati vrijeme jedne sekunde
+        private IProcessingManager processingManager;//Izvrsava operacije Read, Write
+        private Thread acquisitionWorker;//Thread u kome se vrti akvizicija
+		private IStateUpdater stateUpdater;//Stanje Thread
+		private IConfiguration configuration;//Polje koje definise konfiguraciju sistema
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Acquisitor"/> class.
@@ -54,9 +55,37 @@ namespace ProcessingModule
         /// <summary>
         /// Acquisitor thread logic.
         /// </summary>
-		private void Acquisition_DoWork()
+		private void Acquisition_DoWork()//pustena u Thread, i ona se izvrsava u Thread, tu je potrebno napraviti nasu akviziciju
 		{
-            //TO DO: IMPLEMENT
+			//TO DO: IMPLEMENT
+			//u neku listu iscitati konfiguraciju
+			//dobijamo cijelu konfiguraciju, kao jednu listu klase configItem(definise jedan red u konfiguraciji)
+			//while ty, petlja da dobijemo beskonacnu akviziciju dok radi nasa aplikacija
+			//simulacija jedne sekunde pomocu klase acquistionTrigger
+			//foreach prolazak kroz cijelu nasu listu koju smo ocitali u konfiguraciju
+			//za taj cijeli configItem uvecacemo prvo polje koje kaze kaze koliko je vremena proslo od prehodne akvizicije
+			//poredimo sa poljem i kraj ako je doslo do kraja
+			List<IConfigItem> help = new List<IConfigItem>();//napravimo listu
+
+			help = this.configuration.GetConfigurationItems();	//dobijamo listu configItem koji se koristi
+
+			while (true)
+			{
+				acquisitionTrigger.WaitOne();	//sacekamo jednu sekundu
+
+				foreach(IConfigItem item in help) {	  //prolazimo kroz svaki item
+					item.SecondsPassedSinceLastPoll++; //povecavamo njegovu vrijednost, sekundi koje su prosle
+					if(item.SecondsPassedSinceLastPoll == item.AcquisitionInterval)	//ako je izvrsen intreval, ispunjen
+					{
+						processingManager.ExecuteReadCommand(item,	//izvrsimo Read komandu sa parametrima koji su potrebni(item, Id, 
+							configuration.GetTransactionId(),
+							configuration.UnitAddress,
+							item.StartAddress,
+							item.NumberOfRegisters);
+						item.SecondsPassedSinceLastPoll = 0;
+					}
+				}
+			}
         }
 
         #endregion Private Methods

@@ -60,12 +60,12 @@ namespace Modbus.ModbusFunctions
             }
             else
             {
-                ushort address = ((ModbusReadCommandParameters)CommandParameters).StartAddress;
-                ushort value;
-                for (int i = 0; i < response[8]; i = i + 2)
+                ushort address = ((ModbusReadCommandParameters)CommandParameters).StartAddress; //preuzimamo adresu signala
+                ushort value; //preuzimamo vrijednost
+                for (int i = 0; i < response[8]; i = i + 2) //prolazi kroz cijeli niz bajtova
                 {
-                    value = BitConverter.ToUInt16(response, (i + 9));
-                    value = (ushort)IPAddress.NetworkToHostOrder((short)value);
+                    value = BitConverter.ToUInt16(response, (i + 9));  //izdvajamo jednu vrijednost
+                    value = (ushort)IPAddress.NetworkToHostOrder((short)value); //networkToHostOrder
                     dictionary.Add(new Tuple<PointType, ushort>(PointType.ANALOG_INPUT, address), value);
                     address++;
                 }
