@@ -77,10 +77,11 @@ namespace ProcessingModule
         /// <param name="value">The value.</param>
         private void ExecuteAnalogCommand(IConfigItem configItem, ushort transactionId, byte remoteUnitAddress, ushort pointAddress, int value)
         {
-            ModbusWriteCommandParameters p = new ModbusWriteCommandParameters(6, (byte)ModbusFunctionCode.WRITE_SINGLE_REGISTER, pointAddress, (ushort)value, transactionId, remoteUnitAddress);
-            IModbusFunction fn = FunctionFactory.CreateModbusFunction(p);
-            this.functionExecutor.EnqueueCommand(fn);
-        }
+			value = (int)eguConverter.ConvertToRaw(configItem.ScaleFactor, configItem.Deviation, value); // pretvaramo u sirove podatke zbog simulatora da mu to prosledimo 
+			ModbusWriteCommandParameters p = new ModbusWriteCommandParameters(6, (byte)ModbusFunctionCode.WRITE_SINGLE_REGISTER, pointAddress, (ushort)value, transactionId, remoteUnitAddress);
+			IModbusFunction fn = FunctionFactory.CreateModbusFunction(p);
+			this.functionExecutor.EnqueueCommand(fn);
+		}
 
         /// <summary>
         /// Gets the modbus function code for the point type.
@@ -127,11 +128,12 @@ namespace ProcessingModule
         /// <param name="newValue">The new value.</param>
         private void ProcessDigitalPoint(IDigitalPoint point, ushort newValue)
         {
-            point.RawValue = newValue;
-            point.Timestamp = DateTime.Now;
-            point.State = (DState)newValue;
+			point.RawValue = newValue;
+			point.Timestamp = DateTime.Now;
+			point.State = (DState)newValue;
+			point.Alarm = alarmProcessor.GetAlarmForDigitalPoint(point.RawValue, point.ConfigItem);
 
-        }
+		}
 
         /// <summary>
         /// Processes an analog point
@@ -140,10 +142,12 @@ namespace ProcessingModule
         /// <param name="newValue">The new value.</param>
         private void ProcessAnalogPoint(IAnalogPoint point, ushort newValue)
         {
-            point.RawValue = newValue;
-            point.EguValue = newValue;
-            point.Timestamp = DateTime.Now;
-        }
+			// na osnovu polja poziva se metoda koja ce pozvati metodu iz klase koja konvertuje u ing jedinice 
+			point.EguValue = eguConverter.ConvertToEGU(point.ConfigItem.ScaleFactor, point.ConfigItem.Deviation, newValue);
+			point.RawValue = newValue;
+			point.Timestamp = DateTime.Now;
+			point.Alarm = alarmProcessor.GetAlarmForAnalogPoint(point.EguValue, point.ConfigItem);
+		}
 
         /// <inheritdoc />
         public void InitializePoint(PointType type, ushort pointAddress, ushort defaultValue)

@@ -1,10 +1,14 @@
 STA 15 
 TCP 25252
 
-HR_INT  1  1000  0  20  600  400  AO  @L    #
-DI_REG  1  2000  0  0   1    0    DI  @S    #
-DO_REG  1  3000  0  0   1    0    DO  @OP   # 
-DO_REG  1  3001  0  0   1    0    DO  @CL   # 
+HR_INT  1  1000  0  20  600  400  AO  @L    
+DI_REG  1  2000  0  0   1    0    DI  @S   
+DO_REG  1  3000  0  0   1    0    DO  @OP   
+DO_REG  1  3001  0  0   1    0    DO  @CL  
+
+
+
+
 
 
 
