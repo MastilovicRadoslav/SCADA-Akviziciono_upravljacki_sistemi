@@ -294,7 +294,73 @@ namespace dCom.Configuration
                 Int32.TryParse(configurationParameters[9], out temp);
                 AcquisitionInterval = temp;
             }
-        }
+			if (configurationParameters[10].Equals("#"))
+			{
+				ScaleFactor = 1;
+			}
+			else
+			{
+				Double.TryParse(configurationParameters[10], out doubleTemp);
+				ScaleFactor = doubleTemp;
+			}
+
+			if (configurationParameters[11].Equals("#"))
+			{
+				Deviation = 0;
+			}
+			else
+			{
+				Double.TryParse(configurationParameters[11], out doubleTemp);
+				Deviation = doubleTemp;
+			}
+			if (configurationParameters[12].Equals("#"))
+			{
+				EGU_Min = 0;
+			}
+			else
+			{
+				Double.TryParse(configurationParameters[12], out doubleTemp);
+				EGU_Min = doubleTemp;
+			}
+
+			if (configurationParameters[13].Equals("#"))
+			{
+				EGU_Max = 1;
+			}
+			else
+			{
+				Double.TryParse(configurationParameters[13], out doubleTemp);
+				EGU_Max = doubleTemp;
+			}
+			if (configurationParameters[14].Equals("#"))
+			{
+				AbnormalValue = 0; // zbog alarma 
+			}
+			else
+			{
+				Int32.TryParse(configurationParameters[14], out temp);
+				AbnormalValue = (ushort)temp;
+			}
+
+			if (configurationParameters[15].Equals("#"))
+			{
+				LowLimit = 0;
+			}
+			else
+			{
+				Double.TryParse(configurationParameters[15], out doubleTemp);
+				LowLimit = doubleTemp;
+			}
+			if (configurationParameters[16].Equals("#"))
+			{
+				HighLimit = 0;
+			}
+			else
+			{
+				Double.TryParse(configurationParameters[16], out doubleTemp);
+				HighLimit = doubleTemp;
+			}
+		}
 
 		private PointType GetRegistryType(string registryTypeName)
 		{
