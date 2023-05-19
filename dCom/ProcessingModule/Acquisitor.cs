@@ -55,7 +55,7 @@ namespace ProcessingModule
         /// <summary>
         /// Acquisitor thread logic.
         /// </summary>
-		private void Acquisition_DoWork()//pustena u Thread, i ona se izvrsava u Thread, tu je potrebno napraviti nasu akviziciju
+		private void Acquisition_DoWork()//pustena u Thread, i ona se izvrsava u Thread - u, tu je potrebno napraviti nasu akviziciju, moramo iscitati koje sve signale imamo
 		{
 			//TO DO: IMPLEMENT
 			//u neku listu iscitati konfiguraciju
@@ -67,22 +67,22 @@ namespace ProcessingModule
 			//poredimo sa poljem i kraj ako je doslo do kraja
 			List<IConfigItem> help = new List<IConfigItem>();//napravimo listu
 
-			help = this.configuration.GetConfigurationItems();	//dobijamo listu configItem koji se koristi
+			help = this.configuration.GetConfigurationItems();	//dobijamo listu configItem koji se koristi	, ocitavamo je u listu
 
-			while (true)
+			while (true)//akvizicija se izvrsava beskonacno
 			{
-				acquisitionTrigger.WaitOne();	//sacekamo jednu sekundu
+				acquisitionTrigger.WaitOne();	//sacekamo jednu sekundu, simulacija jedne sekunde
 
-				foreach(IConfigItem item in help) {	  //prolazimo kroz svaki item
-					item.SecondsPassedSinceLastPoll++; //povecavamo njegovu vrijednost, sekundi koje su prosle
-					if(item.SecondsPassedSinceLastPoll == item.AcquisitionInterval)	//ako je izvrsen intreval, ispunjen
+				foreach(IConfigItem item in help) {	  //prolazimo kroz svaki item, kroz cijelu listu konfiguracije, jedan ciklus akvizicije
+					item.SecondsPassedSinceLastPoll++; //povecavamo njegovu vrijednost, sekundi koje su prosle od prehodne akvizicije
+					if(item.SecondsPassedSinceLastPoll == item.AcquisitionInterval)	//ako je izvrsen intreval, ispunjen, ako je interval akvizicije jednak brojacu  koji definise koliko je vremena prolso od prehodne akvizicije
 					{
-						processingManager.ExecuteReadCommand(item,	//izvrsimo Read komandu sa parametrima koji su potrebni(item, Id, 
+						processingManager.ExecuteReadCommand(item,	//izvrsimo Read komandu sa parametrima koji su potrebni(trenutni red konfiguracije, id, jedinstevna adresa, startna adresa,  broj registara koji se nalazi u ConfigItem
 							configuration.GetTransactionId(),
 							configuration.UnitAddress,
 							item.StartAddress,
 							item.NumberOfRegisters);
-						item.SecondsPassedSinceLastPoll = 0;
+						item.SecondsPassedSinceLastPoll = 0; //posto se sad izvrsila metoda vracamo vrijeme na nula
 					}
 				}
 			}

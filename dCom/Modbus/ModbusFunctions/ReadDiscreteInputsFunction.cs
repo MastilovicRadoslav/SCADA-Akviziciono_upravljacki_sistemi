@@ -61,7 +61,7 @@ namespace Modbus.ModbusFunctions
 				for (int i = 0; i < response[8]; i++)//izvlaci bajt po bajt
 				{
 					byte cntByte = response[9 + i];//prvi bajt, drugi bajt ..
-					for (int j = 0; j < 8; j++)//od 0 do 8 i radi sa tim izvucenim bajtom, maskom i sa siftovanjem --> obrada svakog bajta
+					for (int j = 0; j < 8; j++)//od 0 do 8 i radi sa tim izvucenim bajtom, maskom i sa siftovanjem --> obrada svakog bajta, broj registara i za svaki od njih vrijednost koju ima --> 0 ili 1
 					{
 						value = (ushort)(cntByte & mask);//uzimamo vrijednost kada uradimo logicko i sa maskom koja je 1
 						cntByte >>= 1;//siftujemo nas bajt za jedno mjesto u desno i uzimamo sledecu vrijednost bajta koju cemo opet sa logicko i uraditi sa maskom

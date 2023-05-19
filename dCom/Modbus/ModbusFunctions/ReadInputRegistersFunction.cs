@@ -61,13 +61,13 @@ namespace Modbus.ModbusFunctions
             else
             {
                 ushort address = ((ModbusReadCommandParameters)CommandParameters).StartAddress; //preuzimamo adresu signala
-                ushort value; //preuzimamo vrijednost
-                for (int i = 0; i < response[8]; i = i + 2) //prolazi kroz cijeli niz bajtova
+                ushort value; //preuzimamo vrijednost, promjenljiva za vrijednost
+                for (int i = 0; i < response[8]; i = i + 2) //prolazi kroz cijeli niz bajtova , kliko ih ima ukupno, uvecava se za 2 jer su vrijednosti spakovane u short za svaki signal
                 {
-                    value = BitConverter.ToUInt16(response, (i + 9));  //izdvajamo jednu vrijednost
+                    value = BitConverter.ToUInt16(response, (i + 9));  //izdvajamo jednu vrijednost shorta pa uvecavamo za 2 mjesta
                     value = (ushort)IPAddress.NetworkToHostOrder((short)value); //networkToHostOrder
-                    dictionary.Add(new Tuple<PointType, ushort>(PointType.ANALOG_INPUT, address), value);
-                    address++;
+                    dictionary.Add(new Tuple<PointType, ushort>(PointType.ANALOG_INPUT, address), value);  //pakujemo poruku
+                    address++;   //sledeca adresa
                 }
             }
 

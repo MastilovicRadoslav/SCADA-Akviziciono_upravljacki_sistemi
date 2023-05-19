@@ -40,15 +40,15 @@ namespace ProcessingModule
         }
         
         /// <inheritdoc />
-        public void ExecuteWriteCommand(IConfigItem configItem, ushort transactionId, byte remoteUnitAddress, ushort pointAddress, int value)
+        public void ExecuteWriteCommand(IConfigItem configItem, ushort transactionId, byte remoteUnitAddress, ushort pointAddress, int value)  //Kad vrsimo komandovanje nad Write signalom ne zelimo da proslijedimo simulatoru EGU vrijednost vec sirovu vrijednost pa vrsimo konverziju
         {
             if (configItem.RegistryType == PointType.ANALOG_OUTPUT)
             {
-                ExecuteAnalogCommand(configItem, transactionId, remoteUnitAddress, pointAddress, value);
+                ExecuteAnalogCommand(configItem, transactionId, remoteUnitAddress, pointAddress, value);  //analogna, vazna
             }
             else
             {
-                ExecuteDigitalCommand(configItem, transactionId, remoteUnitAddress, pointAddress, value);
+                ExecuteDigitalCommand(configItem, transactionId, remoteUnitAddress, pointAddress, value); //gdigitalna
             }
         }
 
@@ -60,7 +60,7 @@ namespace ProcessingModule
         /// <param name="remoteUnitAddress">The remote unit address.</param>
         /// <param name="pointAddress">The point address.</param>
         /// <param name="value">The value.</param>
-        private void ExecuteDigitalCommand(IConfigItem configItem, ushort transactionId, byte remoteUnitAddress, ushort pointAddress, int value)
+        private void ExecuteDigitalCommand(IConfigItem configItem, ushort transactionId, byte remoteUnitAddress, ushort pointAddress, int value)   //konverzija mada za digitalne vrijednosti nema konverzije, SCADA stanica --> postrojenje, DIGITALNA
         {
             ModbusWriteCommandParameters p = new ModbusWriteCommandParameters(6, (byte)ModbusFunctionCode.WRITE_SINGLE_COIL, pointAddress, (ushort)value, transactionId, remoteUnitAddress);
             IModbusFunction fn = FunctionFactory.CreateModbusFunction(p);
@@ -75,7 +75,7 @@ namespace ProcessingModule
         /// <param name="remoteUnitAddress">The remote unit address.</param>
         /// <param name="pointAddress">The point address.</param>
         /// <param name="value">The value.</param>
-        private void ExecuteAnalogCommand(IConfigItem configItem, ushort transactionId, byte remoteUnitAddress, ushort pointAddress, int value)
+        private void ExecuteAnalogCommand(IConfigItem configItem, ushort transactionId, byte remoteUnitAddress, ushort pointAddress, int value) //konverzija, SCADA stanica postrojenje, ANALOGNA
         {
 			value = (int)eguConverter.ConvertToRaw(configItem.ScaleFactor, configItem.Deviation, value); // pretvaramo u sirove podatke zbog simulatora da mu to prosledimo 
 			ModbusWriteCommandParameters p = new ModbusWriteCommandParameters(6, (byte)ModbusFunctionCode.WRITE_SINGLE_REGISTER, pointAddress, (ushort)value, transactionId, remoteUnitAddress);
@@ -126,12 +126,12 @@ namespace ProcessingModule
         /// </summary>
         /// <param name="point">The digital point</param>
         /// <param name="newValue">The new value.</param>
-        private void ProcessDigitalPoint(IDigitalPoint point, ushort newValue)
-        {
+        private void ProcessDigitalPoint(IDigitalPoint point, ushort newValue)  //radi konverziju digitalne vrijednosti, stize nam jedan signal i jedna vrijednost, postorjenje-->SCADA stanica, DIGITAL
+		{
 			point.RawValue = newValue;
 			point.Timestamp = DateTime.Now;
 			point.State = (DState)newValue;
-			point.Alarm = alarmProcessor.GetAlarmForDigitalPoint(point.RawValue, point.ConfigItem);
+			point.Alarm = alarmProcessor.GetAlarmForDigitalPoint(point.RawValue, point.ConfigItem);    //pozivamo alarme
 
 		}
 
@@ -140,13 +140,13 @@ namespace ProcessingModule
         /// </summary>
         /// <param name="point">The analog point.</param>
         /// <param name="newValue">The new value.</param>
-        private void ProcessAnalogPoint(IAnalogPoint point, ushort newValue)
-        {
+        private void ProcessAnalogPoint(IAnalogPoint point, ushort newValue)  //radi konverziju analogne vrijednosti,  stize nam jedan signal i jedna vrijednost, ovo nam sluzi da vidimo stvarnu vrijednost na nasoj skada stanici, SCADA stanica --> postrojenje, ANALOG
+		{
 			// na osnovu polja poziva se metoda koja ce pozvati metodu iz klase koja konvertuje u ing jedinice 
 			point.EguValue = eguConverter.ConvertToEGU(point.ConfigItem.ScaleFactor, point.ConfigItem.Deviation, newValue);
 			point.RawValue = newValue;
 			point.Timestamp = DateTime.Now;
-			point.Alarm = alarmProcessor.GetAlarmForAnalogPoint(point.EguValue, point.ConfigItem);
+			point.Alarm = alarmProcessor.GetAlarmForAnalogPoint(point.EguValue, point.ConfigItem);    //pozivamo alarme
 		}
 
         /// <inheritdoc />

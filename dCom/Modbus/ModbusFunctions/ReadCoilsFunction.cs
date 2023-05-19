@@ -48,7 +48,7 @@ namespace Modbus.ModbusFunctions
         {
 			Dictionary<Tuple<PointType, ushort>, ushort> dictionary = new Dictionary<Tuple<PointType, ushort>, ushort>();
 
-            if (response[7] == CommandParameters.FunctionCode + 0x80)
+            if (response[7] == CommandParameters.FunctionCode + 0x80)   //za Modbus prorokol
             {
                 HandeException(response[8]);
             }

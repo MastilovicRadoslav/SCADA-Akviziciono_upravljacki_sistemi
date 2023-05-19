@@ -18,14 +18,14 @@ namespace dCom.Configuration
 		private string processingType;
 		private string description;
 		private int acquisitionInterval;
-		private double scalingFactor;
-		private double deviation;
-		private double egu_max;
-		private double egu_min;
-		private ushort abnormalValue;
-		private double highLimit;
-		private double lowLimit;
-        private int secondsPassedSinceLastPoll;
+		private double scalingFactor;	//skaliranje
+		private double deviation;		//odstupanje
+		private double egu_max;			//EGU min
+		private double egu_min;			//EGU max
+		private ushort abnormalValue;	//abnormalno stanje
+		private double highLimit;	    //HIGH limir - gornja granica
+		private double lowLimit;		//LOW limit - donja granica
+        private int secondsPassedSinceLastPoll;	 //brojac onaj za akviziciju
 
 		#endregion Fields
 
@@ -251,7 +251,7 @@ namespace dCom.Configuration
 			}
 		}
 
-        public int SecondsPassedSinceLastPoll
+        public int SecondsPassedSinceLastPoll //koliko je sekundi proslo od prehodne akvizicije signala
         {
             get
             {
@@ -285,16 +285,17 @@ namespace dCom.Configuration
 			DefaultValue = (ushort)temp;
 			ProcessingType = configurationParameters[7];
 			Description = configurationParameters[8].TrimStart('@');
-            if (configurationParameters[9].Equals("#"))
+            if (configurationParameters[9].Equals("#"))		//taraba
             {
-                AcquisitionInterval = 1;
+                AcquisitionInterval = 1;	//interval akvizicije
             }
             else
             {
                 Int32.TryParse(configurationParameters[9], out temp);
                 AcquisitionInterval = temp;
             }
-			if (configurationParameters[10].Equals("#"))
+			//PARSIRAMO 4 VRIJEDNOSTI STO SMO UNIJELI, ONE SU VEZANE ZA KONVERZIJU IZ SIROVIH VRIJEDNOSTI U INZENJERSKE VRIJEDNOSTI I OBRNUTO
+			if (configurationParameters[10].Equals("#"))	//taraba
 			{
 				ScaleFactor = 1;
 			}
