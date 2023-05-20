@@ -1,5 +1,6 @@
 ﻿using Common;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace ProcessingModule
@@ -9,12 +10,12 @@ namespace ProcessingModule
     /// </summary>
     public class AutomationManager : IAutomationManager, IDisposable
 	{
-		private Thread automationWorker;
-        private AutoResetEvent automationTrigger;
-        private IStorage storage;
-		private IProcessingManager processingManager;
-		private int delayBetweenCommands;
-        private IConfiguration configuration;
+		private Thread automationWorker;   //Thread automatskog upravljanja
+        private AutoResetEvent automationTrigger;	//Properti koji vrsi sihronizaciju izmedju nasih niti
+        private IStorage storage;  //Provjeravamo stanje nasih prekidaca --> 0 ili 1
+		private IProcessingManager processingManager;  //Preko njega zadajemo write komandu
+		private int delayBetweenCommands;  //DBC automatizacije
+        private IConfiguration configuration;  //Pristupamo svakom signalu
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AutomationManager"/> class.
@@ -29,6 +30,7 @@ namespace ProcessingModule
 			this.processingManager = processingManager;
             this.configuration = configuration;
             this.automationTrigger = automationTrigger;
+			this.delayBetweenCommands = configuration.DelayBetweenCommands;		//dobija vrijednost iz konfiguracije
         }
 
         /// <summary>
@@ -58,11 +60,71 @@ namespace ProcessingModule
 		}
 
 
-		private void AutomationWorker_DoWork()
+		private void AutomationWorker_DoWork()	   //OVDJE SE VRSI AUTOMATIZACIJA
 		{
-			//while (!disposedValue)
-			//{
-			//}
+			EGUConverter eguConverter = new EGUConverter();
+
+			PointIdentifier analogOutput1 = new PointIdentifier(PointType.ANALOG_OUTPUT, 1000);	 //pozicija kapije
+			PointIdentifier digitalOutput1 = new PointIdentifier(PointType.DIGITAL_OUTPUT, 2000); //indikator prepreke
+			PointIdentifier digitalOutput2 = new PointIdentifier(PointType.DIGITAL_OUTPUT, 3000); //open taster
+			PointIdentifier digitalOutput3 = new PointIdentifier(PointType.DIGITAL_OUTPUT, 3001); //close taster
+
+			List<PointIdentifier> pointList = new List<PointIdentifier>()
+			{
+				analogOutput1, digitalOutput1, digitalOutput2, digitalOutput3
+			};
+
+			while (!disposedValue)
+			{
+				List<IPoint> points = storage.GetPoints(pointList);
+
+				if (points[2].RawValue == 1)  //ukljucen OPEN taster
+				{
+					int value = (int)eguConverter.ConvertToEGU(points[0].ConfigItem.ScaleFactor, points[0].ConfigItem.Deviation, points[0].RawValue);	 //vrijednost
+
+					if (value > points[0].ConfigItem.LowLimit)	 //ako kapija nije ispod LowLimit
+					{
+						value -= 10; //otvaraj kapiju
+						processingManager.ExecuteWriteCommand(points[0].ConfigItem, configuration.GetTransactionId(), configuration.UnitAddress, points[0].ConfigItem.StartAddress, value);	  //proslijedi
+					}
+					else	//ako je kapija ispod ili dosla do LowLimit
+					{
+						processingManager.ExecuteWriteCommand(points[2].ConfigItem, configuration.GetTransactionId(), configuration.UnitAddress, points[2].ConfigItem.StartAddress, 0);	//ugasi taster Open
+
+						if (points[1].RawValue == 1) //ako je ukljucen indikator prepreke
+						{
+							processingManager.ExecuteWriteCommand(points[1].ConfigItem, configuration.GetTransactionId(), configuration.UnitAddress, points[1].ConfigItem.StartAddress, 0);	 //iskljuci indikator prepreke
+							processingManager.ExecuteWriteCommand(points[3].ConfigItem, configuration.GetTransactionId(), configuration.UnitAddress, points[3].ConfigItem.StartAddress, 1);	 //pocni zatvarat kapiju
+						}
+					}
+				}
+
+				if (points[3].RawValue == 1)  //ukljucen CLOSE taster
+				{
+					if (points[1].RawValue == 1)   //ako je ukljucen indikator prepreke
+					{
+						processingManager.ExecuteWriteCommand(points[2].ConfigItem, configuration.GetTransactionId(), configuration.UnitAddress, points[2].ConfigItem.StartAddress, 1);	  //ukljuci OPEN taster
+						processingManager.ExecuteWriteCommand(points[3].ConfigItem, configuration.GetTransactionId(), configuration.UnitAddress, points[3].ConfigItem.StartAddress, 0);	  //iskljuci CLOSE taster
+					}
+					else
+					{
+						int value = (int)eguConverter.ConvertToEGU(points[0].ConfigItem.ScaleFactor, points[0].ConfigItem.Deviation, points[0].RawValue); //vrijednost
+
+						if (value < points[0].ConfigItem.HighLimit)	 //ako je ispod HighLimit
+						{
+							value += 10;   //zatvaraj
+							processingManager.ExecuteWriteCommand(points[0].ConfigItem, configuration.GetTransactionId(), configuration.UnitAddress, points[0].ConfigItem.StartAddress, value);	  //proslijedi
+						}
+						else  //ako je kapija presla HighLimit
+						{
+							processingManager.ExecuteWriteCommand(points[3].ConfigItem, configuration.GetTransactionId(), configuration.UnitAddress, points[3].ConfigItem.StartAddress, 0);	//ugasi CLOSE taster
+						}
+					}
+				}
+
+				automationTrigger.WaitOne(delayBetweenCommands);
+			}
+
 		}
 
 		#region IDisposable Support

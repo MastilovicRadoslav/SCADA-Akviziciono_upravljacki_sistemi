@@ -17,11 +17,11 @@ namespace dCom.Configuration
 		private ushort defaultValue;
 		private string processingType;
 		private string description;
-		private int acquisitionInterval;
+		private int acquisitionInterval;  //akvizicija interval
 		private double scalingFactor;	//skaliranje
 		private double deviation;		//odstupanje
-		private double egu_max;			//EGU min
-		private double egu_min;			//EGU max
+		private double egu_max;			//EGU min, minimalna vr u inzenjerskim jedinicama
+		private double egu_min;			//EGU max  maximalna vr u inzenjerskim jedinicama
 		private ushort abnormalValue;	//abnormalno stanje
 		private double highLimit;	    //HIGH limir - gornja granica
 		private double lowLimit;		//LOW limit - donja granica
