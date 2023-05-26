@@ -22,7 +22,7 @@ namespace Modbus.ModbusFunctions
         }
 
         /// <inheritdoc />
-        public override byte[] PackRequest()
+        public override byte[] PackRequest()  //zahtjev
         {
 			ModbusReadCommandParameters mdmReadCommParams = this.CommandParameters as ModbusReadCommandParameters;//u neku promjenljivu smjestamo kastovanu klasu ModbusReadCommandParameters koja nasledjuje baznu klasu ModbusCommandParameters da bi pristupili vrijednostima u njoj
 
@@ -43,12 +43,12 @@ namespace Modbus.ModbusFunctions
 		}
 
         /// <inheritdoc />
-        public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)
+        public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)	  //odgovor
         {
 			
 			Dictionary<Tuple<PointType, ushort>, ushort> dictionary = new Dictionary<Tuple<PointType, ushort>, ushort>();
 			
-			if (response[7] == CommandParameters.FunctionCode + 0x80)
+			if (response[7] == CommandParameters.FunctionCode + 0x80)	 //ispitivanje greske
 			{
 				HandeException(response[8]);
 			}

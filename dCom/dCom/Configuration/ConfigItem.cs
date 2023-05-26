@@ -17,6 +17,7 @@ namespace dCom.Configuration
 		private ushort defaultValue;
 		private string processingType;
 		private string description;
+		//ovo ispod moramo preuzeti sami
 		private int acquisitionInterval;  //akvizicija interval
 		private double scalingFactor;	//skaliranje
 		private double deviation;		//odstupanje

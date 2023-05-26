@@ -62,21 +62,21 @@ namespace ProcessingModule
 
 		private void AutomationWorker_DoWork()	   //OVDJE SE VRSI AUTOMATIZACIJA
 		{
-			EGUConverter eguConverter = new EGUConverter();
-
+			EGUConverter eguConverter = new EGUConverter();		   //za konvertovanje iz sirovih
+			//tip signala i njegovu adresu
 			PointIdentifier analogOutput1 = new PointIdentifier(PointType.ANALOG_OUTPUT, 1000);	 //pozicija kapije
 			PointIdentifier digitalOutput1 = new PointIdentifier(PointType.DIGITAL_OUTPUT, 2000); //indikator prepreke
 			PointIdentifier digitalOutput2 = new PointIdentifier(PointType.DIGITAL_OUTPUT, 3000); //open taster
 			PointIdentifier digitalOutput3 = new PointIdentifier(PointType.DIGITAL_OUTPUT, 3001); //close taster
 
-			List<PointIdentifier> pointList = new List<PointIdentifier>()
+			List<PointIdentifier> pointList = new List<PointIdentifier>()  //ubacujemo u listu
 			{
 				analogOutput1, digitalOutput1, digitalOutput2, digitalOutput3
 			};
 
 			while (!disposedValue)
 			{
-				List<IPoint> points = storage.GetPoints(pointList);
+				List<IPoint> points = storage.GetPoints(pointList);	//dobili trenutne vrijednosti za nase signale
 
 				if (points[2].RawValue == 1)  //ukljucen OPEN taster
 				{
@@ -122,7 +122,7 @@ namespace ProcessingModule
 					}
 				}
 
-				automationTrigger.WaitOne(delayBetweenCommands);
+				automationTrigger.WaitOne(delayBetweenCommands); //koliko vremena prodje izmedju dva komandovanja
 			}
 
 		}

@@ -93,6 +93,6 @@
         /// <summary>
         /// Gets or sets the time passed since last poll was issued.
         /// </summary>
-        int SecondsPassedSinceLastPoll { get; set; }
+        int SecondsPassedSinceLastPoll { get; set; }  //koliko je vremena proslo od prehodne akvizicije
     }
 }

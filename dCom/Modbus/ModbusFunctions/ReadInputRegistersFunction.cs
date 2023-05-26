@@ -22,7 +22,7 @@ namespace Modbus.ModbusFunctions
         }
 
         /// <inheritdoc />
-        public override byte[] PackRequest()//pristupamo svim propertijima klase preko commandParameters i pakujemo u poruku
+        public override byte[] PackRequest()//pristupamo svim propertijima klase preko commandParameters i pakujemo u poruku za slanje na simulator, predstavlja zahtjev za citanje nekog signala
 		{
 
 			ModbusReadCommandParameters mdmReadCommParams = this.CommandParameters as ModbusReadCommandParameters;//u neku promjenljivu smjestamo kastovanu klasu ModbusReadCommandParameters koja nasledjuje baznu klasu ModbusCommandParameters da bi pristupili vrijednostima u njoj
@@ -50,23 +50,23 @@ namespace Modbus.ModbusFunctions
 
 
 		/// <inheritdoc />
-		public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)//pristupamo odredjenom parametru u poruci i ocitavamo vrijednost koja je poslata
+		public override Dictionary<Tuple<PointType, ushort>, ushort> ParseResponse(byte[] response)//pristupamo odredjenom parametru u poruci i ocitavamo vrijednost koja je poslata, to jest ocitavamo vrijednost koja je poslata sa simulatora
 		{
 			Dictionary<Tuple<PointType, ushort>, ushort> dictionary = new Dictionary<Tuple<PointType, ushort>, ushort>();
 
-            if (response[7] == CommandParameters.FunctionCode + 0x80)
+            if (response[7] == CommandParameters.FunctionCode + 0x80)  //UnitId = FunctionCode + 0x80
             {
-                HandeException(response[8]);
+                HandeException(response[8]);   //obradi izuzetak
             }
             else
             {
-                ushort address = ((ModbusReadCommandParameters)CommandParameters).StartAddress; //preuzimamo adresu signala
+                ushort address = ((ModbusReadCommandParameters)CommandParameters).StartAddress; //preuzimamo adresu signala startnu
                 ushort value; //preuzimamo vrijednost, promjenljiva za vrijednost
-                for (int i = 0; i < response[8]; i = i + 2) //prolazi kroz cijeli niz bajtova , kliko ih ima ukupno, uvecava se za 2 jer su vrijednosti spakovane u short za svaki signal
+                for (int i = 0; i < response[8]; i = i + 2) //prolazi kroz cijeli niz bajtova , kliko ih ima ukupno(bajtova), uvecava se za 2 jer su vrijednosti spakovane u short za svaki signal
                 {
                     value = BitConverter.ToUInt16(response, (i + 9));  //izdvajamo jednu vrijednost shorta pa uvecavamo za 2 mjesta
                     value = (ushort)IPAddress.NetworkToHostOrder((short)value); //networkToHostOrder
-                    dictionary.Add(new Tuple<PointType, ushort>(PointType.ANALOG_INPUT, address), value);  //pakujemo poruku
+                    dictionary.Add(new Tuple<PointType, ushort>(PointType.ANALOG_INPUT, address), value);  //adresa dobija novu vrijednost, grupise tip signala adresu signala i novu vrijednost
                     address++;   //sledeca adresa
                 }
             }
