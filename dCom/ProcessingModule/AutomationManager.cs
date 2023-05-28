@@ -64,14 +64,14 @@ namespace ProcessingModule
 		{
 			EGUConverter eguConverter = new EGUConverter();		   //za konvertovanje iz sirovih
 			//tip signala i njegovu adresu
-			PointIdentifier analogOutput1 = new PointIdentifier(PointType.ANALOG_OUTPUT, 1000);	 //pozicija kapije
-			PointIdentifier digitalOutput1 = new PointIdentifier(PointType.DIGITAL_OUTPUT, 2000); //indikator prepreke
-			PointIdentifier digitalOutput2 = new PointIdentifier(PointType.DIGITAL_OUTPUT, 3000); //open taster
-			PointIdentifier digitalOutput3 = new PointIdentifier(PointType.DIGITAL_OUTPUT, 3001); //close taster
+			PointIdentifier analogOutput1 = new PointIdentifier(PointType.ANALOG_OUTPUT, 1000);	  //pozicija kapije
+			PointIdentifier digitalInput1 = new PointIdentifier(PointType.DIGITAL_INPUT, 2000);   //indikator prepreke
+			PointIdentifier digitalOutput1 = new PointIdentifier(PointType.DIGITAL_OUTPUT, 3000); //open taster
+			PointIdentifier digitalOutput2 = new PointIdentifier(PointType.DIGITAL_OUTPUT, 3001); //close taster
 
 			List<PointIdentifier> pointList = new List<PointIdentifier>()  //ubacujemo u listu
 			{
-				analogOutput1, digitalOutput1, digitalOutput2, digitalOutput3
+				analogOutput1, digitalInput1, digitalOutput1, digitalOutput2
 			};
 
 			while (!disposedValue)
@@ -80,7 +80,7 @@ namespace ProcessingModule
 
 				if (points[2].RawValue == 1)  //ukljucen OPEN taster
 				{
-					int value = (int)eguConverter.ConvertToEGU(points[0].ConfigItem.ScaleFactor, points[0].ConfigItem.Deviation, points[0].RawValue);	 //vrijednost
+					int value = (int)eguConverter.ConvertToEGU(points[0].ConfigItem.ScaleFactor, points[0].ConfigItem.Deviation, points[0].RawValue);	 //vrijednost u inzinjerskim
 
 					if (value > points[0].ConfigItem.LowLimit)	 //ako kapija nije ispod LowLimit
 					{
